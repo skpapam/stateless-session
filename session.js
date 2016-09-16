@@ -28,10 +28,10 @@ function Session(obj){
 		  "data" : {}
 	};
 	for (var key in sesobj.data) {
-        if (hasOwnProperty.call(sesobj.data, key)){
-        	this[key] = sesobj.data[key];
-        }
-    }
+		if (hasOwnProperty.call(sesobj.data, key)){
+			this[key] = sesobj.data[key];
+		}
+	}
 	
 	Session._timestamp = sesobj.timestamp;
 	Session._started = !!sesobj.id;
@@ -85,8 +85,8 @@ Session.prototype.exportObject = function(){
 	for (var key in this) {
 		if (typeof this[key] !== "function"){
 			obj.data[key] = this[key];
-        }
-    }
+		}
+	}
 	
 	//return it
 	return obj;

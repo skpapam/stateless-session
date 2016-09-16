@@ -42,6 +42,7 @@ module.exports = (function () {
 		StatelessSession.options.c_options = options.c_options || {
 			"path":"/"
 		};
+		StatelessSession.options.prefix = options.prefix || "s_d_";
 	  
 		return function(req, res, next){
 			//Parse cookies into an object
@@ -78,7 +79,7 @@ module.exports = (function () {
 	   	
 	   	//Select only session related cookies
 	   	cookies = filter(cookies,function(v,k){
-	   		return k.indexOf('r_a_') === 0
+	   		return k.indexOf(StatelessSession.options.prefix) === 0
 	   	});;
 
 	   	//if no cookies found return null
@@ -112,7 +113,7 @@ module.exports = (function () {
 	    //load cookies and exclude the ones related to session
 		cookies = res.getHeader('Set-Cookie') || [];
 		cookies = cookies.filter(function(c){
-			return c.indexOf('r_a_') !== 0;
+			return c.indexOf(StatelessSession.options.prefix) !== 0;
 		});
 	    		
 		//create session related cookies
@@ -126,9 +127,9 @@ module.exports = (function () {
 			//break buffer into smaller pieces and push a new cookie for each piece
 			for(i = 0; i < token_length; i+=3500){
 				cookies.push(cookieparser.serialize(
-				   'r_a_'+((i/3500)+1),
-				   token.slice(i,(i+3500)>token_length?token_length:(i+3500)).toString('utf8'),
-				   StatelessSession.options.c_options
+					StatelessSession.options.prefix+((i/3500)+1),
+					token.slice(i,(i+3500)>token_length?token_length:(i+3500)).toString('utf8'),
+					StatelessSession.options.c_options
 				));
 			}
 			i /= 3500;
@@ -138,7 +139,7 @@ module.exports = (function () {
 		delete_options = JSON.parse(JSON.stringify(StatelessSession.options.c_options));
 		delete_options.expires = new Date(1);
 		while(i<StatelessSession.cookies_count){
-			cookies.push(cookieparser.serialize("r_a_"+(i+1),"",delete_options));
+			cookies.push(cookieparser.serialize(StatelessSession.options.prefix+(i+1),"",delete_options));
 			i++;
 		}
 		
