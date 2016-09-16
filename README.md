@@ -15,9 +15,9 @@ of cookies.
 
 It is realy simple to use just type : 
 ```js
-	var stateless-session = require('stateless-session');
+	var session = require('stateless-session');
 	
-	app.use(stateless-session.middleware());
+	app.use(session.middleware());
 ```
 and you are good to go. This will setup the session for the current request.
 
@@ -25,9 +25,9 @@ You can access the session object and assign data to it later in your applicatio
 the `req.session` object. 
 
 ```js
-	var stateless-session = require('stateless-session');
+	var session = require('stateless-session');
 	
-	app.use(stateless-session.middleware());
+	app.use(session.middleware());
 	
 	app.get('/login',function(req,res){
 		req.session.start();
@@ -55,10 +55,9 @@ As you can see in the above example session tracking does not start by default i
 to provide **authorization functionality** to applications.
 
 When the user visits the `/login` we call `req.session.start()` that starts the session 
-and assigns a session id in this case our session data will be encrypted and 
-passed through a single cookie in our case ( small data size ) to our client.  
-If we don t do that there will be no cookies returned to client thus all session variables 
-will be lost otherwise 
+and assigns a session id then our session data will be encrypted and passed through a single 
+cookie in our case ( small data size ) to our client.  If we don t do that there will be no 
+cookies returned to client thus all session variables will be lost. 
 
 When the user visits our `/hidden` page we check if the session has started and 
 return the appropriate message.
@@ -70,9 +69,9 @@ You can ignore this feature and provide **guest-like sessions** by setting the *
 option to **true** ( default is false )
 
 ```js
-	var stateless-session = require('stateless-session');
+	var session = require('stateless-session');
 	
-	app.use(stateless-session.middleware({
+	app.use(session.middleware({
 		'autostart' : true
 	}));
 	
@@ -96,4 +95,5 @@ size limitation per domain which is 80KB.
 
 ## License
 MIT
-Copyright &copy 2016 Skevos Papamichail &lt;contact@skevosp.me&gt; (www.skevosp.me) 
+
+Copyright (c) 2016 Skevos Papamichail &lt;contact@skevosp.me&gt; (www.skevosp.me) 
