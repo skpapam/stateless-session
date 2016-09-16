@@ -1,0 +1,31 @@
+{
+  "name": "stateless-session",
+  "version": "1.0.0",
+  "description": "Secure client stored session management. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "session",
+    "stateless",
+    "cookie",
+    "client",
+    "secure"
+  ],
+  "author": "Skevos Papamichail <contact@skevosp.me> (www.skevosp.me)",
+  "license": "MIT",
+  "dependencies": {
+    "scmp": "^1.0.0",
+    "on-headers": "^1.0.1",
+    "object-filter": "^1.0.2",
+    "cookie": "^0.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skpapam/stateless-session.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xasma/stateless-session/issues"
+  }
+}
