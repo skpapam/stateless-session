@@ -1,6 +1,6 @@
 /**
  * stateless-session
- * A stateless session management for node.js
+ * Secure client stored session management middleware
  * Copyright 2016 Skevos Papamichail
  * Licensed under MIT license
  */

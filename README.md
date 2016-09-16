@@ -84,6 +84,7 @@ The options that you can pass to the middleware are the following :
 * `key {String}` Overrides the default module key for encryption
 * `autostart {Boolean}` switch from authorized sessions ( false ) to guest ones ( true )
 default value is false
+* `prefix {String}` A cookie name prefix. Default value is **'s_d_'**
 * `c_options {Object}` Cookie related options for more see [cookie](https://www.npmjs.com/package/cookie). 
 By default **path** option is set to **'/'**
 		
