@@ -108,6 +108,7 @@ module.exports = (function () {
 	   		token_length,
 	   		cookies,
 	   		delete_options,
+	   		chunk_size,
 	   		i = 0;
 	   
 	    //load cookies and exclude the ones related to session
@@ -124,15 +125,16 @@ module.exports = (function () {
 			//Create a new buffer with encrypted session data
 			token = new Buffer(StatelessSession.encrypt(session_obj),'utf8');
 			token_length = token.length;
+			chunk_size = StatelessSession.balancedSize();
 			//break buffer into smaller pieces and push a new cookie for each piece
-			for(i = 0; i < token_length; i+=3500){
+			for(i = 0; i < token_length; i+=chunk_size){
 				cookies.push(cookieparser.serialize(
-					StatelessSession.options.prefix+((i/3500)+1),
-					token.slice(i,(i+3500)>token_length?token_length:(i+3500)).toString('utf8'),
+					StatelessSession.options.prefix+((i/chunk_size)+1),
+					token.slice(i,(i+chunk_size)>token_length?token_length:(i+chunk_size)).toString('utf8'),
 					StatelessSession.options.c_options
 				));
 			}
-			i /= 3500;
+			i /= chunk_size;
 		}
 		
 		//delete old and unused session cookies
@@ -199,6 +201,15 @@ module.exports = (function () {
 	    
 		//return the resulted object
 		return JSON.parse(decipher.update(encrypted, 'base64', 'utf8') + decipher.final('utf8'));
+	};
+	
+	StatelessSession.balancedSize = function(){
+		var empty_cookie = cookieparser.serialize(
+				StatelessSession.options.prefix+'100',
+				' ',
+				StatelessSession.options.c_options
+		);
+		return 4000 - empty_cookie.length;
 	};
 	
 	//return StatelessSession instance
