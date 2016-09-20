@@ -58,7 +58,7 @@ module.exports = (function () {
 			
 			//Listener for headers in order to save the cookies
 			onheaders(res, function(){
-				StatelessSession.saveCookies(req,res); 
+				StatelessSession.saveCookies(req,res);
 			});
 			
 			//call next middleware in line
@@ -87,7 +87,7 @@ module.exports = (function () {
 	   	if(!StatelessSession.cookies_count){
 	   		return null;
 	   	}
-	   	
+
 	   	//merge cookies' values into a single token string
 	   	for(var i=1; i<=StatelessSession.cookies_count; i++){
 	   		token = token ? token + cookies[StatelessSession.options.prefix+i] : cookies[StatelessSession.options.prefix+i];
@@ -107,10 +107,11 @@ module.exports = (function () {
 			token,
 	   		token_length,
 	   		cookies,
+	   		cookies_count=0,
+	   		cookie,
 	   		delete_options,
-	   		chunk_size,
+	   		chunk=0,
 	   		i = 0;
-	   
 	    //load cookies and exclude the ones related to session
 		cookies = res.getHeader('Set-Cookie') || [];
 		cookies = cookies.filter(function(c){
@@ -125,16 +126,23 @@ module.exports = (function () {
 			//Create a new buffer with encrypted session data
 			token = new Buffer(StatelessSession.encrypt(session_obj),'utf8');
 			token_length = token.length;
-			chunk_size = StatelessSession.balancedSize();
-			//break buffer into smaller pieces and push a new cookie for each piece
-			for(i = 0; i < token_length; i+=chunk_size){
-				cookies.push(cookieparser.serialize(
-					StatelessSession.options.prefix+((i/chunk_size)+1),
-					token.slice(i,(i+chunk_size)>token_length?token_length:(i+chunk_size)).toString('utf8'),
-					StatelessSession.options.c_options
-				));
+			
+			//Break buffer into multiple cookies with balanced data load.
+			while(i<token_length){
+				cookie = cookieparser.serialize(
+						StatelessSession.options.prefix+((i/chunk)+1),
+						token.slice(i,chunk?(i+chunk):token_length).toString('utf8'),
+						StatelessSession.options.c_options
+				);
+				if(cookie.length>4000){
+					chunk = token_length - cookie.length + 4096;
+					continue;
+				}
+				cookies.push(cookie);
+				cookies_count++;
+				i += chunk?chunk:token_length;
 			}
-			i /= chunk_size;
+			i = cookies_count;
 		}
 		
 		//delete old and unused session cookies
@@ -206,10 +214,10 @@ module.exports = (function () {
 	StatelessSession.balancedSize = function(){
 		var empty_cookie = cookieparser.serialize(
 				StatelessSession.options.prefix+'100',
-				' ',
+				'a',
 				StatelessSession.options.c_options
 		);
-		return 4000 - empty_cookie.length;
+		return 4000 - new Buffer(empty_cookie,'utf8').length;
 	};
 	
 	//return StatelessSession instance

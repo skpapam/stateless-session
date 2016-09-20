@@ -61,7 +61,6 @@ Session.prototype.lastActivity = function(){
 Session.prototype.hasStarted = function(){
 	return Session._started;
 };
-
 /**
  * Prototype function that returns session's 
  * variables and data as an object
