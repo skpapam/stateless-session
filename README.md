@@ -75,8 +75,13 @@ option to **true** ( default is false )
 		'autostart' : true
 	}));
 	
-	app.use(function(req, res, next) {
+	app.get('/addName',function(req, res) {
 		req.session.name = "Skevos";
+		res.send("Name added");
+	});
+	
+	app.get('/getName',function(req, res) {
+		res.send("The name is : "+req.session.name);
 	});
 ```	
 
