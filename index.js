@@ -89,8 +89,8 @@ module.exports = (function () {
 	   	}
 	   	
 	   	//merge cookies' values into a single token string
-	   	for(var i in cookies){
-	   		token = token ? token + cookies[i] : cookies[i];
+	   	for(var i=1; i<=StatelessSession.cookies_count; i++){
+	   		token = token ? token + cookies[StatelessSession.options.prefix+i] : cookies[StatelessSession.options.prefix+i];
 	   	}
 	   	
 	   	//decrypt token and return the resulted object
