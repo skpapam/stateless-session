@@ -111,8 +111,7 @@ module.exports = (function () {
 	   		cookie,
 	   		delete_options,
 	   		chunk=0,
-	   		start = 0,
-	   		total = 0;
+	   		start = 0;
 		
 	    //load cookies and exclude the ones related to session
 		cookies = res.getHeader('Set-Cookie') || [];
@@ -146,7 +145,6 @@ module.exports = (function () {
 				
 				//push cookie into the array
 				cookies.push(cookie);
-				total += cookie.length;
 				cookies_added++;
 				start += chunk?chunk:token_length;
 			}
@@ -160,17 +158,9 @@ module.exports = (function () {
 			cookies_added++;
 		}
 		
-		//Save cookies or throw an exception if data exceeds broswer's limitations.
-		if(cookies_added > 300){
-			throw new Error('stateless-session : Can not write '+cookies_added+' cookies to response. Only 300 allowed.');
-		}
-		else if(total > 80000){
-			throw new Error('stateless-session : Can not write '+Math.ceil(total*100/1024)/100+'KB of cookies to response. Only 80KB are allowed.');
-		}
-		else{
-			res.setHeader('Set-Cookie', cookies)
-		}
-	   
+		
+		res.setHeader('Set-Cookie', cookies)
+		
 	};
 
 	/**
