@@ -107,11 +107,13 @@ module.exports = (function () {
 			token,
 	   		token_length,
 	   		cookies,
-	   		cookies_count=0,
+	   		cookies_added=0,
 	   		cookie,
 	   		delete_options,
 	   		chunk=0,
-	   		i = 0;
+	   		start = 0,
+	   		total = 0;
+		
 	    //load cookies and exclude the ones related to session
 		cookies = res.getHeader('Set-Cookie') || [];
 		cookies = cookies.filter(function(c){
@@ -123,38 +125,51 @@ module.exports = (function () {
 			//The session data that needs to be saved
 			session_obj = req.session.exportObject() || {};
 			
-			//Create a new buffer with encrypted session data
-			token = new Buffer(StatelessSession.encrypt(session_obj),'utf8');
+			//Create a string with encrypted session data
+			token = StatelessSession.encrypt(session_obj);
 			token_length = token.length;
 			
-			//Break buffer into multiple cookies with balanced data load.
-			while(i<token_length){
+			//Break string into multiple cookies with balanced data load.
+			while(start<token_length){
+				//serialize cookie
 				cookie = cookieparser.serialize(
-						StatelessSession.options.prefix+((i/chunk)+1),
-						token.slice(i,chunk?(i+chunk):token_length).toString('utf8'),
+						StatelessSession.options.prefix+(cookies_added+1),
+						token.slice(start,chunk?(start+chunk):token_length).toString('utf8'),
 						StatelessSession.options.c_options
 				);
+				
+				//if cookie's length is big reduce chunk size
 				if(cookie.length>4000){
-					chunk = token_length - cookie.length + 4096;
+					chunk = chunk === 0 ? 4000 : chunk - 50; 
 					continue;
 				}
+				
+				//push cookie into the array
 				cookies.push(cookie);
-				cookies_count++;
-				i += chunk?chunk:token_length;
+				total += cookie.length;
+				cookies_added++;
+				start += chunk?chunk:token_length;
 			}
-			i = cookies_count;
 		}
 		
 		//delete old and unused session cookies
 		delete_options = JSON.parse(JSON.stringify(StatelessSession.options.c_options));
 		delete_options.expires = new Date(1);
-		while(i<StatelessSession.cookies_count){
+		while(cookies_added < StatelessSession.cookies_count){
 			cookies.push(cookieparser.serialize(StatelessSession.options.prefix+(i+1),"",delete_options));
-			i++;
+			cookies_added++;
 		}
 		
-		//save cookies
-		res.setHeader('Set-Cookie', cookies)
+		//Save cookies or throw an exception if data exceeds broswer's limitations.
+		if(cookies_added > 300){
+			throw new Error('stateless-session : Can not write '+cookies_added+' cookies to response. Only 300 allowed.');
+		}
+		else if(total > 80000){
+			throw new Error('stateless-session : Can not write '+Math.ceil(total*100/1024)/100+'KB of cookies to response. Only 80KB are allowed.');
+		}
+		else{
+			res.setHeader('Set-Cookie', cookies)
+		}
 	   
 	};
 
