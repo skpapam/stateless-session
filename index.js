@@ -154,7 +154,7 @@ module.exports = (function () {
 		delete_options = JSON.parse(JSON.stringify(StatelessSession.options.c_options));
 		delete_options.expires = new Date(1);
 		while(cookies_added < StatelessSession.cookies_count){
-			cookies.push(cookieparser.serialize(StatelessSession.options.prefix+(i+1),"",delete_options));
+			cookies.push(cookieparser.serialize(StatelessSession.options.prefix+(cookies_added+1),"",delete_options));
 			cookies_added++;
 		}
 		
