@@ -86,8 +86,9 @@ option to **true** ( default is false )
 ```	
 
 The options that you can pass to the middleware are the following :
-* `key {String}` Overrides the default module key for encryption
-* `autostart {Boolean}` switch from authorized sessions ( false ) to guest ones ( true )
+* `key {String}` Overrides the default key for encryption. See more [i-encrypt](https://www.npmjs.com/package/i-encrypt)
+* `debug {Boolean}` Debug mode switcher for encryption. See more [i-encrypt](https://www.npmjs.com/package/i-encrypt)
+* `autostart {Boolean}` Switch from authorized sessions ( false ) to guest ones ( true )
 default value is false
 * `prefix {String}` A cookie name prefix. Default value is **'s_d_'**
 * `c_options {Object}` Cookie related options for more see [cookie](https://www.npmjs.com/package/cookie). 
@@ -95,7 +96,7 @@ By default **path** option is set to **'/'**
 		
 ## Limitations
 
-Even though this module manages to overcome the 4KB cookie size limitation by evenly 
+Even though this module manages to overcome the 4KB cookie size limitation by  
 distributing the data to multiple cookies based on its size there is still the overall
 size limitation per domain which depends on each browser. Most modern browsers will support
 up to 80KB of data. 
