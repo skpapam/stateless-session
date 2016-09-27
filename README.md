@@ -96,10 +96,9 @@ By default **path** option is set to **'/'**
 		
 ## Limitations
 
-Even though this module manages to overcome the 4KB cookie size limitation by  
-distributing the data to multiple cookies based on its size there is still the overall
-size limitation per domain which depends on each browser. Most modern browsers will support
-up to 80KB of data. 
+Even though this module manages to overcome the 4KB cookie size limitation by distributing the data to multiple 
+cookies based on its size there is still the overall size limitation per domain which depends on each browser. 
+Most modern browsers will support up to 80KB of data. 
 
 **Before setting your application's session to handle a big load of data
 please read [this](http://browsercookielimits.squawky.net).**
