@@ -1,6 +1,6 @@
 {
   "name": "stateless-session",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Secure client stored session management. ",
   "main": "index.js",
   "scripts": {
@@ -16,10 +16,11 @@
   "author": "Skevos Papamichail <contact@skevosp.me> (www.skevosp.me)",
   "license": "MIT",
   "dependencies": {
-    "scmp": "^1.0.0",
-    "on-headers": "^1.0.1",
-    "object-filter": "^1.0.2",
-    "cookie": "^0.3.1"
+    "i-compare-strings": "^1.0.0",
+    "i-encrypt": "^1.0.0",
+    "on-headers": "1.0.1",
+    "object-filter": "1.0.2",
+    "cookie": "0.3.1"
   },
   "repository": {
     "type": "git",

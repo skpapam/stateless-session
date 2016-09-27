@@ -11,13 +11,13 @@
 /**
  * Dependencies
  */
-var crypto = require('crypto');
+var i_encrypt = require('i-encrypt');
 var cookieparser = require('cookie');
-var compare = require('scmp');
+var compare = require('i-compare-strings');
 var onheaders = require('on-headers');
 var filter = require('object-filter');
 var model = require('./session')
-
+var ie;
 /**
  * Module exports a new StatelessSession instance
  */
@@ -26,7 +26,6 @@ module.exports = (function () {
 	 * Constructor
 	 */
 	function StatelessSession() {
-		StatelessSession.server_key = crypto.randomBytes(32);
 		StatelessSession.options = {};
 	}
 
@@ -37,13 +36,16 @@ module.exports = (function () {
 	 */
 	StatelessSession.prototype.middleware = function(options) {
 		options = options || {};
-		StatelessSession.options.key = options.key || StatelessSession.server_key;
 		StatelessSession.options.autostart = options.autostart || false;
 		StatelessSession.options.c_options = options.c_options || {
 			"path":"/"
 		};
 		StatelessSession.options.prefix = options.prefix || "s_d_";
-	  
+		ie = i_encrypt({
+			key : options.key,
+			debug : options.debug || false
+		})
+		
 		return function(req, res, next){
 			//Parse cookies into an object
 			var sobj = StatelessSession.parseCookies(req);
@@ -94,7 +96,7 @@ module.exports = (function () {
 	   	}
 	   	
 	   	//decrypt token and return the resulted object
-	   	return StatelessSession.decrypt(token);
+	   	return ie.decrypt(token);
 	}
 	
 	/**
@@ -110,7 +112,7 @@ module.exports = (function () {
 	   		cookies_added=0,
 	   		cookie,
 	   		delete_options,
-	   		chunk=0,
+	   		chunk = 0,
 	   		start = 0;
 		
 	    //load cookies and exclude the ones related to session
@@ -125,10 +127,11 @@ module.exports = (function () {
 			session_obj = req.session.exportObject() || {};
 			
 			//Create a string with encrypted session data
-			token = StatelessSession.encrypt(session_obj);
-			token_length = token.length;
+			token = ie.encrypt(session_obj);
+			token_length = !!token?token.length:0;
 			
 			//Break string into multiple cookies with balanced data load.
+			
 			while(start<token_length){
 				//serialize cookie
 				cookie = cookieparser.serialize(
@@ -139,7 +142,7 @@ module.exports = (function () {
 				
 				//if cookie's length is big reduce chunk size
 				if(cookie.length>4000){
-					chunk = chunk === 0 ? 4000 : chunk - 50; 
+					chunk = chunk === 0 ? 3900 : chunk - 150; 
 					continue;
 				}
 				
@@ -161,68 +164,6 @@ module.exports = (function () {
 		
 		res.setHeader('Set-Cookie', cookies)
 		
-	};
-
-	/**
-	 * Encrypts an object
-	 * @param session_obj Object to encrypt
-	 * @returns {String} the resulted token
-	 */
-	StatelessSession.encrypt = function(session_obj){
-		//serialize
-		var original = JSON.stringify(session_obj);
-		
-		//initialization vector
-		var vector = new Buffer(crypto.randomBytes(16));
-		
-		//new cipher
-		var cipher = crypto.createCipheriv('aes256', StatelessSession.options.key, vector);
-		
-		//the encrypted text
-		var encrypted = cipher.update(original,'utf8','base64') + cipher.final('base64');
-		
-		//a hash for the combination of encrypted text and initialization vector
-		var hash = crypto.createHmac('sha256', StatelessSession.options.key).update(encrypted+vector.toString('base64')).digest('base64');
-	   
-		//return token ecrypted.vector.hash
-		return encrypted + "." + vector.toString('base64') + "." + hash;
-	};
-   
-	/**
-	 * Decrypts a token
-	 * @param token string
-	 * @returns {JSON} object
-	 */
-	StatelessSession.decrypt = function(token){
-		var decipher;
-		// split token and save each value (encrypted text,vector,hash)
-		var t=token.split(".");
-		var encrypted = t[0];
-		var vector = new Buffer(t[1], 'base64');
-		var hash = t[2];
-		
-		// calculate hash
-		var new_hash = crypto.createHmac('sha256', StatelessSession.options.key).update(encrypted+t[1]).digest('base64');
-	   
-		//check data integrity by comparing the two hash values 
-		if(!compare(hash,new_hash)){
-			return null;
-		}
-		
-		//new decipher
-		decipher = crypto.createDecipheriv('aes256', StatelessSession.options.key, vector);
-	    
-		//return the resulted object
-		return JSON.parse(decipher.update(encrypted, 'base64', 'utf8') + decipher.final('utf8'));
-	};
-	
-	StatelessSession.balancedSize = function(){
-		var empty_cookie = cookieparser.serialize(
-				StatelessSession.options.prefix+'100',
-				'a',
-				StatelessSession.options.c_options
-		);
-		return 4000 - new Buffer(empty_cookie,'utf8').length;
 	};
 	
 	//return StatelessSession instance
