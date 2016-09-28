@@ -16,8 +16,7 @@
   "author": "Skevos Papamichail <contact@skevosp.me> (www.skevosp.me)",
   "license": "MIT",
   "dependencies": {
-    "i-compare-strings": "^1.0.0",
-    "i-encrypt": "^1.0.0",
+    "i-encrypt": "^1.0.1",
     "on-headers": "1.0.1",
     "object-filter": "1.0.2",
     "cookie": "0.3.1"
