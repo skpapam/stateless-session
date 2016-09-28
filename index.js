@@ -13,7 +13,6 @@
  */
 var i_encrypt = require('i-encrypt');
 var cookieparser = require('cookie');
-var compare = require('i-compare-strings');
 var onheaders = require('on-headers');
 var filter = require('object-filter');
 var model = require('./session')
